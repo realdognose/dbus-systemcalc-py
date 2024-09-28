@@ -340,8 +340,8 @@ class DynamicEss(SystemCalcDelegate, ChargeControl):
 		self._dbusservice.add_path('/DynamicEss/AllowGridFeedIn', value=None)
 
 		#Green Mode may override the DESS-Schedule with a more localized strategy.
-		self._dbusservice.add_path('/DynamicEss/FinalStrategy', value=None) 
-
+		self._dbusservice.add_path('/DynamicEss/FinalStrategy', value=None)
+        
 		if self.mode > 0:
 			self._timer = GLib.timeout_add(INTERVAL * 1000, self._on_timer)
 
