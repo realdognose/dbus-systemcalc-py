@@ -567,9 +567,9 @@ class DynamicEss(SystemCalcDelegate, ChargeControl):
 					self.chargerate = None # For recalculation
 				self.targetsoc = w.soc
 
-				#TODO: Trade Mode requires different handling of discharge / idle behaviour
-				#      Couldn't find out how to distinguish between trade / green mode, so adding 
-				#      the proper test here would allow better seperation of concerns. 
+				#FIXME: Trade Mode requires different handling of discharge / idle behaviour
+				#       Couldn't find out how to distinguish between trade / green mode, so adding 
+				#       the proper test here would allow better seperation of concerns. 
 				userMode = "GREEN"
 				if (userMode == "TRADE"):
 					# Original implementation
