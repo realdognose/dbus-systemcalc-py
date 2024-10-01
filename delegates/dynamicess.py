@@ -308,6 +308,7 @@ class DynamicEssWindow(ScheduledWindow):
 class DynamicEss(SystemCalcDelegate, ChargeControl):
 	control_priority = 0
 	_get_time = datetime.now
+	_maxTargetSocForIdle = None
 
 	def __init__(self):
 		super(DynamicEss, self).__init__()
@@ -429,6 +430,9 @@ class DynamicEss(SystemCalcDelegate, ChargeControl):
 		if setting == 'dess_mode':
 			if oldvalue == 0 and newvalue > 0:
 				self._timer = GLib.timeout_add(INTERVAL * 1000, self._on_timer)
+		
+		elif setting == "dess_greenmodemaxtargetsocforidle":
+			self._maxTargetSocForIdle = newvalue
 
 	def windows(self):
 		starttimes = (self._settings['dess_start_{}'.format(i)] for i in range(NUM_SCHEDULES))
@@ -479,6 +483,10 @@ class DynamicEss(SystemCalcDelegate, ChargeControl):
 	@property
 	def capacity(self):
 		return self._settings["dess_capacity"]
+	
+	@property
+	def maxTargetSocForIdle(self):
+		return self._maxTargetSocForIdle or self._settings["dess_greenmodemaxtargetsocforidle"]
 
 	@property
 	def restrictions(self):
@@ -556,6 +564,14 @@ class DynamicEss(SystemCalcDelegate, ChargeControl):
 				self._dbusservice['/DynamicEss/Restrictions'] = restrictions
 				self._dbusservice['/DynamicEss/AllowGridFeedIn'] = int(w.allow_feedin)
 
+				#If Soc is above {userConfigurable}%, enforce selfconsume at all times.
+				if self.soc > self.maxTargetSocForIdle:
+					self._dbusservice['/DynamicEss/ChargeRate'] = self.chargerate = None
+					self._device.self_consume(restrictions, w.allow_feedin)
+					self.targetsoc = None
+					overrideStrategy = 'SELFCONSUME_SOC_HIGH'
+					break
+
 				if w.strategy == Strategy.SELFCONSUME:
 					self._dbusservice['/DynamicEss/ChargeRate'] = self.chargerate = None
 					self.targetsoc = None
@@ -568,9 +584,9 @@ class DynamicEss(SystemCalcDelegate, ChargeControl):
 					self.chargerate = None # For recalculation
 				self.targetsoc = w.soc
 
-				#FIXME: Trade Mode requires different handling of discharge / idle behaviour
-				#       Couldn't find out how to distinguish between trade / green mode, so adding 
-				#       the proper test here would allow better seperation of concerns. 
+				#TODO: Trade Mode requires different handling of discharge / idle behaviour
+				#      Couldn't find out how to distinguish between trade / green mode, so adding 
+				#      the proper test here would allow better seperation of concerns. 
 				userMode = "GREEN"
 				if (userMode == "TRADE"):
 					# Original implementation
@@ -615,13 +631,6 @@ class DynamicEss(SystemCalcDelegate, ChargeControl):
 					#  
 					# If there is a solar shortage, but currentSoc > targetsoc, system will stay in SELF_CONSUME to 
 					# sustain loads from the battery. (it is ahead of schedule, can spare some energy)
-					
-                    #If Soc is above {userConfigurable}%, enforce selfconsume.
-					if self.soc > self._settings["dess_greenmodemaxtargetsocforidle"]:
-						self._dbusservice['/DynamicEss/ChargeRate'] = self.chargerate = None
-						self._device.self_consume(restrictions, w.allow_feedin)
-						overrideStrategy = 'SELFCONSUME_SOC_HIGH'
-						break
                     
 					if self.soc + self.charge_hysteresis < w.soc or w.soc >= 100: # Charge
 						self.charge_hysteresis = 0
