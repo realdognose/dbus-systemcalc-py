@@ -565,6 +565,8 @@ class DynamicEss(SystemCalcDelegate, ChargeControl):
 				self._dbusservice['/DynamicEss/AllowGridFeedIn'] = int(w.allow_feedin)
 
 				#If Soc is above {userConfigurable}%, enforce selfconsume at all times.
+				#FIXME: VRM should mark schedules with a "BatteryHealthCharge"-Flag, so we can
+				#     decide to ignore the maxTargetSocForIdle on days with a scheduled Full-Charge.
 				if self.soc > self.maxTargetSocForIdle:
 					self._dbusservice['/DynamicEss/ChargeRate'] = self.chargerate = None
 					self._device.self_consume(restrictions, w.allow_feedin)
@@ -584,9 +586,9 @@ class DynamicEss(SystemCalcDelegate, ChargeControl):
 					self.chargerate = None # For recalculation
 				self.targetsoc = w.soc
 
-				#TODO: Trade Mode requires different handling of discharge / idle behaviour
-				#      Couldn't find out how to distinguish between trade / green mode, so adding 
-				#      the proper test here would allow better seperation of concerns. 
+				#FIXME: Trade Mode requires different handling of discharge / idle behaviour
+				#       Couldn't find out how to distinguish between trade / green mode, so adding 
+				#       the proper test here would allow better seperation of concerns. 
 				userMode = "GREEN"
 				if (userMode == "TRADE"):
 					# Original implementation
