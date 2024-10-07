@@ -639,9 +639,22 @@ class DynamicEss(SystemCalcDelegate, ChargeControl):
 						self.charge_hysteresis = 0
 						self.discharge_hysteresis = 1
 						self.update_chargerate(now, w.stop, abs(self.soc - w.soc))
+						
+						# The charge rate is calculated only, when the soc changes. 
+						# PV Production however may change quicker. So, before setting the device
+						# into charge-mode, let's see, if we can achieve a higher charge-rate from available
+						# solar-production.
+						#possibleCharge =  ((self._device.pvpower or 0) + (self._device.acpv or 0)) - self._device.consumption
+						#if (possibleCharge > self.chargerate):
+						#	#Yep, in SelfConsume, charge rate would be higher than what we need to reach the target-soc.
+						#	self._dbusservice['/DynamicEss/ChargeRate'] = self.chargerate = None
+						#	self._device.self_consume(restrictions, w.allow_feedin)
+						#	overrideStrategy = 'SCHEDULED_CHARGE_PLUS'
+						#else:
+						#	#Nope, chargerate per schedule is higher, so stay with that. 
 						self._dbusservice['/DynamicEss/ChargeRate'] = \
-							self._device.charge(w.flags, restrictions,
-								self.chargerate, w.allow_feedin)
+						self._device.charge(w.flags, restrictions,
+							self.chargerate, w.allow_feedin)
 						overrideStrategy = "SCHEDULED_CHARGE"
 					else: 
 						self.charge_hysteresis = 1
