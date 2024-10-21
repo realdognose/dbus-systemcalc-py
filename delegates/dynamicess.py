@@ -319,6 +319,7 @@ class DynamicEss(SystemCalcDelegate, ChargeControl):
 		self._timer = None
 		self._devices = {}
 		self._device = None
+		self._dessHackVersion = "2024-10-21"
 
 
 	def set_sources(self, dbusmonitor, settings, dbusservice):
@@ -342,6 +343,7 @@ class DynamicEss(SystemCalcDelegate, ChargeControl):
 
 		#Green Mode may override the DESS-Schedule with a more localized strategy.
 		self._dbusservice.add_path('/DynamicEss/FinalStrategy', value=None)
+		self._dbusservice.add_path('/DynamicEss/HackVersion', value=self._dessHackVersion)
         
 		if self.mode > 0:
 			self._timer = GLib.timeout_add(INTERVAL * 1000, self._on_timer)

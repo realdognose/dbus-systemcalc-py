@@ -51,5 +51,11 @@ MbPage {
 			show: dEssMode.value == 1
 			item.bind: "com.victronenergy.system/DynamicEss/FinalStrategy"
 		}
+
+		MbItemValue {
+			description: qsTr("Hack Version") 
+			show: dEssMode.value == 1
+			item.bind: "com.victronenergy.system/DynamicEss/HackVersion"
+		}
 	}
 }
