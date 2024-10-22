@@ -46,6 +46,20 @@ MbPage {
 			}
 		}
 
+		MbSpinBox {
+			description: qsTr("Adhoc Charge Rate")
+			show: dEssMode.value == 1
+			enabled: true
+			item {
+				bind: "com.victronenergy.settings/Settings/DynamicEss/AdhocChargeRate"
+				decimals: 0
+				unit: "W"
+				min: 0
+				max: 20000
+				step: 250
+			}
+		}
+
 		MbItemValue {
 			description: qsTr("Final Strategy") 
 			show: dEssMode.value == 1

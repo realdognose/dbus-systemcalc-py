@@ -319,8 +319,8 @@ class DynamicEss(SystemCalcDelegate, ChargeControl):
 		self._timer = None
 		self._devices = {}
 		self._device = None
-		self._dessHackVersion = "2024-10-21"
-
+		self._dessHackVersion = "2024-10-22"
+		self._adhocChargeRate = None
 
 	def set_sources(self, dbusmonitor, settings, dbusservice):
 		super(DynamicEss, self).set_sources(dbusmonitor, settings, dbusservice)
@@ -344,6 +344,7 @@ class DynamicEss(SystemCalcDelegate, ChargeControl):
 		#Green Mode may override the DESS-Schedule with a more localized strategy.
 		self._dbusservice.add_path('/DynamicEss/FinalStrategy', value=None)
 		self._dbusservice.add_path('/DynamicEss/HackVersion', value=self._dessHackVersion)
+		self._dbusservice.add_path('/DynamicEss/AdhocChargeRate', value=self._adhocChargeRate)
         
 		if self.mode > 0:
 			self._timer = GLib.timeout_add(INTERVAL * 1000, self._on_timer)
@@ -361,6 +362,7 @@ class DynamicEss(SystemCalcDelegate, ChargeControl):
 			("dess_fullchargeinterval", path + "/FullChargeInterval", 14, 0, 0),
 			("dess_fullchargeduration", path + "/FullChargeDuration", 2, 0, 0),
 			("dess_greenmodemaxtargetsocforidle", path + "/MaxTargetSocForIdle", 100.0, 5.0, 100.0),
+			("dess_adhocchargerate", path + "/AdhocChargeRate", 0.0, 250.0, 20000.0),
 		]
 
 		for i in range(NUM_SCHEDULES):
@@ -435,6 +437,9 @@ class DynamicEss(SystemCalcDelegate, ChargeControl):
 		
 		elif setting == "dess_greenmodemaxtargetsocforidle":
 			self._maxTargetSocForIdle = newvalue
+
+		elif setting == "dess_adhocchargerate":
+			self._adhocChargeRate = newvalue if (newvalue > 0) else None
 
 	def windows(self):
 		starttimes = (self._settings['dess_start_{}'.format(i)] for i in range(NUM_SCHEDULES))
@@ -565,6 +570,14 @@ class DynamicEss(SystemCalcDelegate, ChargeControl):
 				self._dbusservice['/DynamicEss/Strategy'] = w.strategy
 				self._dbusservice['/DynamicEss/Restrictions'] = restrictions
 				self._dbusservice['/DynamicEss/AllowGridFeedIn'] = int(w.allow_feedin)
+
+				if (not self._adhocChargeRate is None):
+					#Forced charge desired by user. 
+					self._dbusservice['/DynamicEss/ChargeRate'] = self._adhocChargeRate
+					self._dbusservice['/DynamicEss/ChargeRate'] = self._device.charge(w.flags, restrictions, self._adhocChargeRate, w.allow_feedin)
+					self.targetsoc = None
+					overrideStrategy = "FORCED_CHARGE"
+					break # Out of FOR loop
 
 				if w.strategy == Strategy.SELFCONSUME:
 					self._dbusservice['/DynamicEss/ChargeRate'] = self.chargerate = None
