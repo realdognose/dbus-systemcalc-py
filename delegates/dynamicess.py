@@ -362,7 +362,7 @@ class DynamicEss(SystemCalcDelegate, ChargeControl):
 			("dess_fullchargeinterval", path + "/FullChargeInterval", 14, 0, 0),
 			("dess_fullchargeduration", path + "/FullChargeDuration", 2, 0, 0),
 			("dess_greenmodemaxtargetsocforidle", path + "/MaxTargetSocForIdle", 100.0, 5.0, 100.0),
-			("dess_adhocchargerate", path + "/AdhocChargeRate", 0.0, 250.0, 20000.0),
+			("dess_adhocchargerate", path + "/AdhocChargeRate", 0.0, 0.0, 20000.0),
 		]
 
 		for i in range(NUM_SCHEDULES):
@@ -439,7 +439,7 @@ class DynamicEss(SystemCalcDelegate, ChargeControl):
 			self._maxTargetSocForIdle = newvalue
 
 		elif setting == "dess_adhocchargerate":
-			self._adhocChargeRate = newvalue if (newvalue > 0) else None
+			self._adhocChargeRate = newvalue if newvalue > 0 else None
 
 	def windows(self):
 		starttimes = (self._settings['dess_start_{}'.format(i)] for i in range(NUM_SCHEDULES))
@@ -576,7 +576,7 @@ class DynamicEss(SystemCalcDelegate, ChargeControl):
 					self._dbusservice['/DynamicEss/ChargeRate'] = self._adhocChargeRate
 					self._dbusservice['/DynamicEss/ChargeRate'] = self._device.charge(w.flags, restrictions, self._adhocChargeRate, w.allow_feedin)
 					self.targetsoc = None
-					overrideStrategy = "FORCED_CHARGE"
+					overrideStrategy = "ADHOC_CHARGE"
 					break # Out of FOR loop
 
 				if w.strategy == Strategy.SELFCONSUME:
