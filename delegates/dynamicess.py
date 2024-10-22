@@ -492,6 +492,10 @@ class DynamicEss(SystemCalcDelegate, ChargeControl):
 		return self._settings["dess_capacity"]
 	
 	@property
+	def adhocChargeRate(self):
+		return self._adhocChargeRate or self._settings["dess_adhocchargerate"]
+
+	@property
 	def maxTargetSocForIdle(self):
 		return self._maxTargetSocForIdle or self._settings["dess_greenmodemaxtargetsocforidle"]
 
@@ -571,10 +575,10 @@ class DynamicEss(SystemCalcDelegate, ChargeControl):
 				self._dbusservice['/DynamicEss/Restrictions'] = restrictions
 				self._dbusservice['/DynamicEss/AllowGridFeedIn'] = int(w.allow_feedin)
 
-				if (not self._adhocChargeRate is None):
+				if (not self.adhocChargeRate is None and self.adhocChargeRate > 0):
 					#Forced charge desired by user. 
 					self._dbusservice['/DynamicEss/ChargeRate'] = self._adhocChargeRate
-					self._dbusservice['/DynamicEss/ChargeRate'] = self._device.charge(w.flags, 0, self._adhocChargeRate + self._device.consumption, w.allow_feedin)
+					self._dbusservice['/DynamicEss/ChargeRate'] = self._device.charge(w.flags, 0, self.adhocChargeRate, w.allow_feedin)
 					self.targetsoc = None
 					overrideStrategy = "ADHOC_CHARGE"
 					break # Out of FOR loop
@@ -689,6 +693,7 @@ class DynamicEss(SystemCalcDelegate, ChargeControl):
 								#         hence idling is the best choice here (maybe even desired due to grid prices)
 								self._dbusservice['/DynamicEss/ChargeRate'] = \
 									self._device.idle(w.allow_feedin)
+								
 								overrideStrategy = 'IDLE_MAINTAIN_TARGET_SOC'
 
 				break # out of for loop
