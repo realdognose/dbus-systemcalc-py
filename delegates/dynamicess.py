@@ -576,12 +576,21 @@ class DynamicEss(SystemCalcDelegate, ChargeControl):
 				self._dbusservice['/DynamicEss/AllowGridFeedIn'] = int(w.allow_feedin)
 
 				if (not self.adhocChargeRate is None and self.adhocChargeRate > 0):
-					#Forced charge desired by user. 
-					self._dbusservice['/DynamicEss/ChargeRate'] = self._adhocChargeRate
-					self._dbusservice['/DynamicEss/ChargeRate'] = self._device.charge(w.flags, 0, self.adhocChargeRate, w.allow_feedin)
-					self.targetsoc = None
-					overrideStrategy = "ADHOC_CHARGE"
-					break # Out of FOR loop
+					#charge up to max targetsoc for idle.
+					if (self.soc < self.maxTargetSocForIdle):
+						#Forced charge desired by user. 
+						self._dbusservice['/DynamicEss/ChargeRate'] = self._adhocChargeRate
+						self._dbusservice['/DynamicEss/ChargeRate'] = self._device.charge(w.flags, 0, self.adhocChargeRate, w.allow_feedin)
+						self.targetsoc = None
+						overrideStrategy = "ADHOC_CHARGE"
+						break # Out of FOR loop
+					else:
+						#indivudual target soc reached. Reset forced charge parameters, and don't break the loop here. 
+						self._dbusservice['/DynamicEss/ChargeRate'] = self.chargerate = None
+						self._adhocChargeRate = None
+						
+						#also need to set the setting to 0 again, here. 
+						self._device.monitor.set_value_async('com.victronenergy.settings', '/Settings/DynamicEss/AdhocChargeRate', 0)
 
 				if w.strategy == Strategy.SELFCONSUME:
 					self._dbusservice['/DynamicEss/ChargeRate'] = self.chargerate = None

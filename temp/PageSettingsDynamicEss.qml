@@ -42,7 +42,7 @@ MbPage {
 				unit: "%"
 				min: 5
 				max: 100
-				step: 5
+				step: 1
 			}
 		}
 
