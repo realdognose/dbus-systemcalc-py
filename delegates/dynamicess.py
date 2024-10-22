@@ -398,7 +398,8 @@ class DynamicEss(SystemCalcDelegate, ChargeControl):
 				 '/Settings/Ess/MinimumSocLimit']),
 			('com.victronenergy.settings', [
 				'/Settings/CGwacs/Hub4Mode',
-				'/Settings/CGwacs/MaxFeedInPower'])
+				'/Settings/CGwacs/MaxFeedInPower',
+				'/Settings/DynamicEss/AdhocChargeRate'])
 		]
 
 	def get_output(self):
