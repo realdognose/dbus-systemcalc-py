@@ -574,7 +574,7 @@ class DynamicEss(SystemCalcDelegate, ChargeControl):
 				if (not self._adhocChargeRate is None):
 					#Forced charge desired by user. 
 					self._dbusservice['/DynamicEss/ChargeRate'] = self._adhocChargeRate
-					self._dbusservice['/DynamicEss/ChargeRate'] = self._device.charge(w.flags, restrictions, self._adhocChargeRate, w.allow_feedin)
+					self._dbusservice['/DynamicEss/ChargeRate'] = self._device.charge(w.flags, restrictions, self._adhocChargeRate + self._device.consumption, w.allow_feedin)
 					self.targetsoc = None
 					overrideStrategy = "ADHOC_CHARGE"
 					break # Out of FOR loop
