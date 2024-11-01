@@ -33,7 +33,7 @@ MbPage {
 		}
 
 		MbSpinBox {
-			description: qsTr("Max Target SOC for idle")
+			description: qsTr("Max Target SOC for idle and Adhoc Charge")
 			show: dEssMode.value == 1
 			enabled: true
 			item {

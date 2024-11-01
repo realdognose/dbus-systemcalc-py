@@ -664,7 +664,8 @@ class DynamicEss(SystemCalcDelegate, ChargeControl):
 					#  
 					# If there is a solar shortage, but currentSoc > targetsoc, system will stay in SELF_CONSUME to 
 					# sustain loads from the battery. (it is ahead of schedule, can spare some energy)
-                    
+					availableSolarPlus = (self._device.pvpower or 0) + (self._device.acpv or 0) * 0.9 - self._device.consumption
+
 					if self.soc + self.charge_hysteresis < w.soc or w.soc >= 100: # Charge
 						self.charge_hysteresis = 0
 						self.discharge_hysteresis = 1
@@ -673,8 +674,7 @@ class DynamicEss(SystemCalcDelegate, ChargeControl):
 						# Experimental: If SOC is < 90% (to be improved based on CCL of the battery), 
 						#               pretend we have a 0 feedin enabled, so feedin is suppressed during
 						#               scheduled charge, which should lead to higher charge rates, if additional solar is available.
-						availableSolarPlus = (self._device.pvpower or 0) + (self._device.acpv or 0) * 0.9 - self._device.consumption
-
+						
 						if  self.soc >= 90 or availableSolarPlus < self._dbusservice['/DynamicEss/ChargeRate']: 
 							#regular charge as requested
 							self._dbusservice['/DynamicEss/ChargeRate'] = self._device.charge(w.flags, restrictions, self.chargerate, w.allow_feedin)
@@ -686,7 +686,7 @@ class DynamicEss(SystemCalcDelegate, ChargeControl):
 					else: 
 						self.charge_hysteresis = 1
 						
-						if (((self._device.pvpower or 0) + (self._device.acpv or 0)) > self._device.consumption):
+						if (availableSolarPlus > 0):
 							# Case 1: solar surplus available
 							self._dbusservice['/DynamicEss/ChargeRate'] = self.chargerate = None
 							self._device.self_consume(restrictions, w.allow_feedin)
