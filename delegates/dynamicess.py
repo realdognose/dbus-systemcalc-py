@@ -322,7 +322,7 @@ class DynamicEss(SystemCalcDelegate, ChargeControl):
 		self._device = None
 		self._errorcode = 0
 		self._errortimer = ERROR_TIMEOUT
-		self._dessHackVersion = "2024-10-22"
+		self._dessHackVersion = "2024-11-01"
 		self._adhocChargeRate = None
 
 
