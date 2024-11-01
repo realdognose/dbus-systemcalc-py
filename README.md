@@ -1,6 +1,6 @@
 Hack for dynamic-ess delegate.
 
-Please see 
+Please see the proper feature branch depending on your version:
 
-feature/3.41
-feature/3.50
+[3.40, 3.41](https://github.com/realdognose/dbus-systemcalc-py/tree/feature/v3.41)
+[3.50](https://github.com/realdognose/dbus-systemcalc-py/tree/feature/v3.50)
