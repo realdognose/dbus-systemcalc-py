@@ -1,12 +1,13 @@
 Hack for dynamic-ess delegate.
 
-### feature/3.50
+### feature/3.51
+### feature/3.52
 
 ### install
 
 ```
-wget https://raw.githubusercontent.com/realdognose/dbus-systemcalc-py/refs/heads/feature/v3.50/delegates/dynamicess.py
-wget https://raw.githubusercontent.com/realdognose/dbus-systemcalc-py/refs/heads/feature/v3.50/temp/PageSettingsDynamicEss.qml
+wget https://raw.githubusercontent.com/realdognose/dbus-systemcalc-py/refs/heads/feature/v3.52/delegates/dynamicess.py
+wget https://raw.githubusercontent.com/realdognose/dbus-systemcalc-py/refs/heads/feature/v3.52/temp/PageSettingsDynamicEss.qml
 
 test -a /opt/victronenergy/dbus-systemcalc-py/delegates/dynamicess.backup.py || cp /opt/victronenergy/dbus-systemcalc-py/delegates/dynamicess.py /opt/victronenergy/dbus-systemcalc-py/delegates/dynamicess.backup.py
 test -a /opt/victronenergy/gui/qml/PageSettingsDynamicEss.backup.qml || cp /opt/victronenergy/gui/qml/PageSettingsDynamicEss.qml /opt/victronenergy/gui/qml/PageSettingsDynamicEss.backup.qml
