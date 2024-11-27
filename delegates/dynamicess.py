@@ -322,7 +322,7 @@ class DynamicEss(SystemCalcDelegate, ChargeControl):
 		self._device = None
 		self._errorcode = 0
 		self._errortimer = ERROR_TIMEOUT
-		self._dessHackVersion = "2024-11-01"
+		self._dessHackVersion = "2024-11-27"
 		self._adhocChargeRate = None
 
 
@@ -617,18 +617,6 @@ class DynamicEss(SystemCalcDelegate, ChargeControl):
 					break # Out of FOR loop
 
 				# Below here, strategy is Strategy.TARGETSOC
-
-				#If Soc is above {userConfigurable}%, enforce selfconsume at all times.
-				#FIXME: VRM should mark schedules with a "BatteryHealthCharge"-Flag, so we can
-				#     decide to ignore the maxTargetSocForIdle on days with a scheduled Full-Charge,
-				#     and follow the 100% target-soc-schedule beside lower user-limitations.
-				if self.soc > self.maxTargetSocForIdle:
-					self._dbusservice['/DynamicEss/ChargeRate'] = self.chargerate = None
-					self._device.self_consume(restrictions, w.allow_feedin)
-					self.discharge_hysteresis = 1 #Also add a charge hysteresis of 1, so we don't bounce between selfconsume and charge.
-					overrideStrategy = 'SELFCONSUME_SOC_HIGH'
-					break # Out of FOR loop
-
 				if self.targetsoc != w.soc:
 					self.chargerate = None # For recalculation
 				self.targetsoc = w.soc
