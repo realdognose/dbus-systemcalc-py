@@ -7,3 +7,5 @@ Please see the proper feature branch depending on your version:
 [3.50](https://github.com/realdognose/dbus-systemcalc-py/tree/feature/v3.50)
 
 [3.51, 3.52](https://github.com/realdognose/dbus-systemcalc-py/tree/feature/v3.52)
+
+Starting with beta **v3.60~47 the hack is no longer compatible** (and no longer needed)
